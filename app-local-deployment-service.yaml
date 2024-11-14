@@ -1,0 +1,33 @@
+# Déploiement pour l'application utilisant l'image locale
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-local    # Nom unique pour identifier ce déploiement
+spec:
+  replicas: 1        # Nombre de copies (pods) de l'application
+  selector:
+    matchLabels:     # Sélecteur pour identifier les pods gérés par ce déploiement
+      app: app-local # Label utilisé pour lier le service aux pods
+  template:
+    metadata:
+      labels:
+        app: app-local # Même label que ci-dessus pour le matching
+    spec:
+      containers:
+      - name: app-local           # Nom du conteneur
+        image: getting-started-app:v1  # Image locale à utiliser
+        ports:
+        - containerPort: 3000     # Port exposé par le conteneur
+---
+# Service pour exposer l'application locale
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-local-service  # Nom unique du service
+spec:
+  selector:
+    app: app-local        # Sélectionne les pods avec le label app: app-local
+  ports:
+  - port: 80             # Port externe du service
+    targetPort: 3000     # Port du conteneur (doit correspondre au containerPort)
+  type: LoadBalancer     # Type de service pour exposition externe

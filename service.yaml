@@ -1,0 +1,11 @@
+apiVersion: v1  # API Kubernetes utilisée pour les objets "Service"
+kind: Service  # Type d'objet Kubernetes
+metadata:
+  name: getting-started-app-service  # Nom du Service
+spec:
+  selector:
+    app: getting-started-app  # Sélectionne les pods avec l'étiquette "app: getting-started-app"
+  ports:
+  - port: 80  # Port d'écoute du Service
+    targetPort: 3000  # Port cible du conteneur
+  type: LoadBalancer  # Type de Service (LoadBalancer expose le Service sur un IP externe)

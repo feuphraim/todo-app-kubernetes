@@ -1,0 +1,33 @@
+# Déploiement pour l'application utilisant l'image de la registry
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-registry    # Nom unique pour ce second déploiement
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-registry  # Label différent pour distinguer de l'app locale
+  template:
+    metadata:
+      labels:
+        app: app-registry
+    spec:
+      containers:
+      - name: app-registry
+        image: localhost:5000/getting-started-app:v1  # Image depuis la registry locale
+        ports:
+        - containerPort: 3000
+---
+# Service pour exposer l'application de la registry
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-registry-service
+spec:
+  selector:
+    app: app-registry    # Sélectionne uniquement les pods de l'app registry
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: LoadBalancer
