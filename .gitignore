@@ -1,2 +1,3 @@
+#Ajouter des protections préventives:  Ignorer les fichiers sensibles
 .env
-.DS_Store
+
