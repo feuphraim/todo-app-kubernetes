@@ -10,6 +10,9 @@ COPY . .
 # Installe les dépendances en production uniquement
 RUN yarn install --production
 
+#Installer curl
+RUN apk --no-cache add curl
+
 # Configure la commande de démarrage pour exécuter l'application
 CMD ["node", "src/index.js"]
 

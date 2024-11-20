@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: app-registry    # Nom unique pour ce second déploiement
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: app-registry  # Label différent pour distinguer de l'app locale

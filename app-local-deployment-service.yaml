@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: app-local           # Nom du conteneur
-        image: getting-started-app:v1  # Image locale à utiliser
+        image: getting-started-app:v2  # Image locale à utiliser
         ports:
         - containerPort: 3000     # Port exposé par le conteneur
 ---
