@@ -8,7 +8,7 @@ spec:
   selector:
     matchLabels:     # Sélecteur pour identifier les pods gérés par ce déploiement
       app: app-local # Le Deployment gère les Pods qui ont ce label
-  template:        #moule qui détermine la structure des Pods à créer
+  template:        # Moule qui détermine la structure des Pods à créer
     metadata:
       labels:
         app: app-local # Les Pods créés porteront ce label (Même label que ci-dessus pour le matching)
@@ -16,8 +16,23 @@ spec:
       containers:
       - name: app-local           # Nom du conteneur
         image: getting-started-app:v2  # Image locale à utiliser
+
+        # Montages de volumes pour le conteneur
+        volumeMounts: 
+          - name: app-local-volume          # Nom du volume défini plus bas dans la section "volumes"
+            mountPath: /etc/todos           # Chemin dans le conteneur où le volume sera monté.
+                                            # Les données persistantes seront accessibles ici pour l'application.
+        
         ports:
         - containerPort: 3000     # Port exposé par le conteneur
+        
+      # Déclaration des volumes utilisés par le conteneur
+      volumes:
+        - name: app-local-volume            # Nom du volume référencé dans "volumeMounts"
+          persistentVolumeClaim:            # Spécifie qu'un PersistentVolumeClaim (PVC) est utilisé pour ce volume
+            claimName: app-local-pvc        # Nom du PVC que ce volume utilisera
+                                            # Le PVC doit être défini dans un autre fichier YAML ou avant dans la configuration
+
 ---
 # Service pour exposer l'application locale
 apiVersion: v1

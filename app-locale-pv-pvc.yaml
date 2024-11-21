@@ -1,0 +1,29 @@
+#pv.yaml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+name: app-locale-pv
+spec:
+capacity:
+storage: 10Gi
+accessModes:
+- ReadWriteMany
+persistentVolumeReclaimPolicy: Retain
+
+---
+#pcv.yaml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+name: app-locale-pvc
+spec:
+accessModes:
+- ReadWriteMany
+resources:
+requests:
+storage: 10Gi
+selector:
+matchLabels:
+name: app-locale-pv
