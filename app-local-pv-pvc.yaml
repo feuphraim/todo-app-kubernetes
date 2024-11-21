@@ -1,0 +1,37 @@
+---
+# PersistentVolume (PV) - Définit l'espace de stockage disponible dans le cluster Kubernetes
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: app-locale-pv          # Nom unique pour identifier ce PersistentVolume
+  labels:
+    name: app-locale-pv        # Label ajouté pour permettre la sélection spécifique par le PVC
+spec:
+  capacity:
+    storage: 10Gi              # Capacité mise à jour pour correspondre à la demande du PVC
+  accessModes:
+    - ReadWriteMany            # Permet à plusieurs pods d'accéder simultanément en lecture et écriture
+  persistentVolumeReclaimPolicy: Retain 
+                               # Conserve les données même si le PVC associé est supprimé
+                               # Options : Retain (conserver), Recycle (réinitialiser), Delete (supprimer)
+  # Optionnel : Spécifier le type de stockage (local, NFS, cloud provider, etc.)
+  # Dans cet exemple, on utiliserait probablement un stockage local ou de type host-path
+  hostPath:
+    path: /data/app-locale-volume  # Chemin sur le nœud hôte où les données seront stockées
+
+---
+# PersistentVolumeClaim (PVC) - Demande de stockage par une application
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-locale-pvc         # Nom unique pour ce PersistentVolumeClaim
+spec:
+  accessModes:
+    - ReadWriteMany            # Correspond exactement au mode d'accès du PV
+  resources:
+    requests:
+      storage: 10Gi            # Quantité de stockage demandée
+  selector:                    
+    matchLabels:               
+      name: app-locale-pv      # Sélectionne spécifiquement le PV avec ce label
+  # Remarque : Assurez-vous que le PV correspond exactement aux spécifications du PVC
