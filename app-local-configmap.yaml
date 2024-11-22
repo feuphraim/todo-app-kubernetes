@@ -1,0 +1,11 @@
+# Configuration de l'application via ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-local-configmap     # Nom unique du ConfigMap
+data:
+  # Variables d'environnement pour la connexion MySQL
+  MYSQL_HOST: mysql.default.svc.cluster.local  # Nom DNS complet du service MySQL dans le cluster
+  MYSQL_USER: root             # Nom d'utilisateur MySQL
+  MYSQL_PASSWORD: password     # Note: Pour la production, utilisez plutôt un Secret
+  MYSQL_DB: todos             # Nom de la base de données
