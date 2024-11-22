@@ -17,7 +17,7 @@ spec:
   # Optionnel : Spécifier le type de stockage (local, NFS, cloud provider, etc.)
   # Dans cet exemple, on utiliserait probablement un stockage local ou de type host-path
   hostPath:
-    path: /data/app-locale-volume  # Chemin sur le nœud hôte où les données seront stockées
+    path: /data/app-locale-volume  # Chemin sur la machine hôte où les données seront stockées
 
 ---
 # PersistentVolumeClaim (PVC) - Demande de stockage par une application
