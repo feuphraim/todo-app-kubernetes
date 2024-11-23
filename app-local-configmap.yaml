@@ -7,5 +7,24 @@ data:
   # Variables d'environnement pour la connexion MySQL
   MYSQL_HOST: mysql.default.svc.cluster.local  # Nom DNS complet du service MySQL dans le cluster
   MYSQL_USER: root             # Nom d'utilisateur MySQL
-  MYSQL_PASSWORD: password     # Note: Pour la production, utilisez plutôt un Secret
-  MYSQL_DB: todos             # Nom de la base de données
+  MYSQL_DB: todos              # Nom de la base de données
+  #MYSQL_PASSWORD:             # Note: Pour la production, on a préféré utiliser un Secret
+
+---
+# Script d'initialisation MySQL
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-config     # Nom unique pour le ConfigMap d'initialisation
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS todos;      -- Crée la base de données si elle n'existe pas
+    USE todos;                                -- Bascule sur la base de données "todos"
+    CREATE TABLE IF NOT EXISTS todo_items (   -- Crée la table "tasks" si elle n'existe pas
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      text VARCHAR(255) NOT NULL,
+      completed BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    GRANT ALL PRIVILEGES ON todos.* TO 'root'@'%';
+    FLUSH PRIVILEGES;
