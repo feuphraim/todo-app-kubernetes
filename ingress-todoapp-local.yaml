@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1  # Utilisation de l'API pour gérer les Ingress dans Kubernetes.
+kind: Ingress                     # Type de ressource Kubernetes : un Ingress pour gérer le trafic HTTP/HTTPS.
+metadata:
+  name: app-local-ingress    # Nom unique de cet Ingress.
+spec:
+  ingressClassName: nginx         # Utilise une classe d'Ingress spécifique, ici gérée par un contrôleur NGINX.
+  rules:                          # Liste des règles définissant le comportement de routage HTTP.
+  - host: todoapp.local  # Nom de domaine pour accéder à l'application (doit être résolu via DNS ou un fichier hosts).
+    http:                         # Configuration des routes HTTP.
+      paths:                      # Définit les chemins et les services correspondants.
+      - path: /                   # Route tout le trafic avec le chemin racine "/".
+        pathType: Prefix          # Le type de correspondance du chemin (ici, "Prefix" correspond aux chemins commençant par "/").
+        backend:                  # Définition du service backend qui recevra le trafic.
+          service:
+            name: app-local-service  # Nom du service Kubernetes qui recevra le trafic HTTP.
+            port:
+              number: 80           # Port exposé par le service qui sera utilisé.

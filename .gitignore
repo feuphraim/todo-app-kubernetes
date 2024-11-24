@@ -1,3 +1,4 @@
 #Ajouter des protections préventives:  Ignorer les fichiers sensibles
+.DS_store
 .env
 *secret*
