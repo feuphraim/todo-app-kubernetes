@@ -1,48 +1,81 @@
+# app-local-depolyment-service.yaml
 # Déploiement pour l'application utilisant l'image locale
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-local    # Nom unique pour identifier ce déploiement
+  name: app-local                   # Nom unique pour identifier ce déploiement
+  labels:
+    app: app-local                  # Label pour le déploiement
 spec:
-  replicas: 1        # Nombre de copies (pods) de l'application
+  replicas: 1                       # Nombre de copies (pods) de l'application
   selector:
-    matchLabels:     # Sélecteur pour identifier les pods gérés par ce déploiement
-      app: app-local # Le Deployment gère les Pods qui ont ce label
-  template:        # Moule qui détermine la structure des Pods à créer
+    matchLabels:                    # Sélecteur pour identifier les pods gérés par ce déploiement
+      app: app-local                # Le Deployment gère les Pods qui ont ce label
+  template:                         # Moule qui détermine la structure des Pods à créer
     metadata:
       labels:
-        app: app-local # Les Pods créés porteront ce label (Même label que ci-dessus pour le matching)
+        app: app-local              # Les Pods créés porteront ce label
     spec:
       containers:
-      - name: app-local           # Nom du conteneur
+      - name: app-local            # Nom du conteneur
         image: getting-started-app:v2  # Image locale à utiliser
+        ports:
+        - containerPort: 3000      # Port exposé par le conteneur
+        
+        # Configuration des variables d'environnement depuis le ConfigMap
+        env:
+          - name: MYSQL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: app-local-configmap    # Nom de votre ConfigMap
+                key: MYSQL_HOST
+          - name: MYSQL_USER
+            valueFrom:
+              configMapKeyRef:
+                name: app-local-configmap
+                key: MYSQL_USER
+          - name: MYSQL_DB
+            valueFrom:
+              configMapKeyRef:
+                name: app-local-configmap
+                key: MYSQL_DB
+          - name: MYSQL_PASSWORD 
+            valueFrom:
+              secretKeyRef:                # Au lieu de configMapKeyRef
+                name: app-local-secrets    # Nom du Secret
+                key: MYSQL_PASSWORD        # Clé dans le Secret
 
         # Montages de volumes pour le conteneur
         volumeMounts: 
-          - name: app-local-volume          # Nom du volume défini plus bas dans la section "volumes"
-            mountPath: /etc/todos           # Chemin dans le conteneur où le volume sera monté.
-                                            # Les données persistantes seront accessibles ici pour l'application.
-        
-        ports:
-        - containerPort: 3000     # Port exposé par le conteneur
-        
+          - name: app-local-volume    # Nom du volume
+            mountPath: /etc/todos     # Chemin dans le conteneur où le volume sera monté. 
+                                      # Les données persistantes seront accessibles ici pour l'application.
+
+        # Configuration des ressources (recommandé)
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
       # Déclaration des volumes utilisés par le conteneur
       volumes:
         - name: app-local-volume            # Nom du volume référencé dans "volumeMounts"
           persistentVolumeClaim:            # Spécifie qu'un PersistentVolumeClaim (PVC) est utilisé pour ce volume
             claimName: app-local-pvc        # Nom du PVC que ce volume utilisera
                                             # Le PVC doit être défini dans un autre fichier YAML ou avant dans la configuration
-
 ---
 # Service pour exposer l'application locale
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-local-service  # Nom unique du service
+  name: app-local-service         # Nom unique du service
 spec:
   selector:
-    app: app-local        # Sélectionne les pods avec le label app: app-local
+    app: app-local               # Sélectionne les pods avec le label app: app-local
   ports:
-  - port: 80             # Port externe du service
-    targetPort: 3000     # Port du conteneur (doit correspondre au containerPort)
-  type: LoadBalancer     # Type de service pour exposition externe
+  - port: 80                     # Port externe du service
+    targetPort: 3000            # Port du conteneur (doit correspondre au containerPort)
+  type: LoadBalancer            # Type de service pour exposition externe

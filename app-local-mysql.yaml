@@ -1,4 +1,4 @@
----
+# app-local-mysql.yaml
 # Déploiement de la base de données MySQL
 apiVersion: apps/v1
 kind: Deployment
@@ -24,6 +24,8 @@ spec:
             secretKeyRef:
               name: app-local-secrets   # Référence au Secret contenant le mot de passe
               key: MYSQL_PASSWORD       # Clé du mot de passe dans le Secret
+        - name: MYSQL_DATABASE         # Création automatique de la base de données
+          value: "todos"
         ports:
         - containerPort: 3306          # Port standard MySQL
           name: mysql
@@ -37,11 +39,15 @@ spec:
         volumeMounts:                  # Configuration du montage du volume pour la persistance
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql
+        - name: mysql-init-script      # Nouveau montage pour le script d'initialisation
+          mountPath: /docker-entrypoint-initdb.d
       volumes:                         # Définition du volume pour stocker les données MySQL
       - name: mysql-persistent-storage
         persistentVolumeClaim:
           claimName: mysql-pvc        # Référence à un PVC à créer pour MySQL
-
+      - name: mysql-init-script       # Nouveau volume pour le script d'initialisation
+        configMap:
+          name: mysql-init-config
 
 ---
 # Service pour exposer MySQL aux autres pods

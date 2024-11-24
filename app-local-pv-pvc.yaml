@@ -1,11 +1,12 @@
 ---
+# app-local-pv-pvc.yaml
 # PersistentVolume (PV) - Définit l'espace de stockage disponible dans le cluster Kubernetes
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: app-locale-pv          # Nom unique pour identifier ce PersistentVolume
+  name: app-local-pv          # Nom unique pour identifier ce PersistentVolume
   labels:
-    name: app-locale-pv        # Label ajouté pour permettre la sélection spécifique par le PVC
+    name: app-local-pv        # Label ajouté pour permettre la sélection spécifique par le PVC
 spec:
   capacity:
     storage: 10Gi              # Capacité mise à jour pour correspondre à la demande du PVC
@@ -17,14 +18,14 @@ spec:
   # Optionnel : Spécifier le type de stockage (local, NFS, cloud provider, etc.)
   # Dans cet exemple, on utiliserait probablement un stockage local ou de type host-path
   hostPath:
-    path: /data/app-locale-volume  # Chemin sur la machine hôte où les données seront stockées
+    path: /data/app-local-volume  # Chemin sur la machine hôte où les données seront stockées
 
 ---
 # PersistentVolumeClaim (PVC) - Demande de stockage par une application
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: app-locale-pvc         # Nom unique pour ce PersistentVolumeClaim
+  name: app-local-pvc         # Nom unique pour ce PersistentVolumeClaim
 spec:
   accessModes:
     - ReadWriteMany            # Correspond exactement au mode d'accès du PV
@@ -33,5 +34,55 @@ spec:
       storage: 10Gi            # Quantité de stockage demandée
   selector:                    
     matchLabels:               
-      name: app-locale-pv      # Sélectionne spécifiquement le PV avec ce label
+      name: app-local-pv      # Sélectionne spécifiquement le PV avec ce label
   # Remarque : Assurez-vous que le PV correspond exactement aux spécifications du PVC
+
+
+
+
+
+
+
+---
+# PersistentVolume (PV) pour MySQL
+# Définit l'espace de stockage physique pour la base de données
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv                 # Nom unique du volume persistant
+  labels:
+    type: local                  # Label pour identifier le type de stockage
+    app: mysql                   # Label pour associer avec MySQL
+spec:
+  capacity:
+    storage: 20Gi               # Taille du volume (adaptez selon vos besoins)
+  accessModes:
+    - ReadWriteOnce             # Un seul pod peut monter le volume en lecture/écriture
+                                # C'est le mode recommandé pour MySQL
+  persistentVolumeReclaimPolicy: Retain
+                                # Conserve les données même si le PVC est supprimé
+                                # Important pour préserver les données MySQL
+  hostPath:                     # Utilisation du stockage local du nœud
+    path: "/data/app-local-mysql"         # Chemin sur le nœud hôte
+                                # Assurez-vous que ce répertoire existe et a les bonnes permissions
+
+---
+# PersistentVolumeClaim (PVC) pour MySQL
+# Demande de stockage utilisée par le pod MySQL
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc               # Nom du PVC (référencé dans le déploiement MySQL)
+  labels:
+    app: mysql                  # Label pour identifier qu'il appartient à MySQL
+spec:
+  accessModes:
+    - ReadWriteOnce            # Doit correspondre au mode d'accès du PV
+  resources:
+    requests:
+      storage: 20Gi            # Taille demandée (doit être ≤ à la capacité du PV)
+  storageClassName: ""         # Pas de classe de stockage - liaison directe avec le PV
+  selector:
+    matchLabels:
+      type: local              # Sélectionne le PV avec le label correspondant
+      app: mysql
